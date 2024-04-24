@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <style> .results-carousel .item img { width: 512px; height: 512px; } </style>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="COMD: Training-free Camera Motion Transfer With Camera-Object Motion Disentanglement">
+  <meta name="keywords" content="COMD, Camera Motion transfer, Camera-Object Motion Disentanglement">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>COMD: Training-free Camera Motion Transfer With Camera-Object Motion Disentanglement</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">COMD: Training-free Camera Motion Transfer With Camera-Object Motion Disentanglement</h1>
+
+              <!-- Dataset Link. -->
+              <!-- <span class="link-block">
+                <a href="https://github.com/google/nerfies/releases/tag/0.1"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="far fa-images"></i>
+                  </span>
+                  <span>Data</span>
+                  </a> -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+
+        <!-- <div class="columns is-centered">
+          <img src="./static/my_images/teaser.png" class="interpolation-image" alt="Interpolate start reference image.">
+        </div> -->
+
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            The emergence of diffusion models has greatly propelled the progress
+            in image and video generation. Recently, some efforts have been
+            made in controllable video generation, including text-to-video,
+            image-to-video generation, video editing, and video motion control,
+            among which camera motion control is an important topic. How-
+            ever, existing camera motion control methods rely on training a
+            temporal camera module, and necessitate substantial computation
+            resources due to the large amount of parameters in video genera-
+            tion models. Moreover, existing methods pre-define camera motion
+            types during training, which limits their flexibility in camera con-
+            trol, preventing the realization of some specific camera controls,
+            such as various camera movements in films. Therefore, to reduce
+            training costs and achieve flexible camera control, we propose
+            COMD, a novel training-free video motion transfer model, which
+            disentangles camera motions and object motions in source videos,
+            and transfers the extracted camera motions to new videos. We first
+            propose a one-shot camera motion disentanglement method to ex-
+            tract camera motion from a single source video, which separates
+            the moving objects from the background and estimates the camera
+            motion in the moving objects region based on the motion in the
+            background by solving a Poisson equation. Furthermore, we pro-
+            pose a few-shot camera motion disentanglement method to extract
+            the common camera motion from multiple videos with similar cam-
+            era motions, which employs a window-based clustering technique
+            to extract the common features in temporal attention maps of mul-
+            tiple videos. Finally, we propose a motion combination method to
+            combine different types of camera motions together, enabling our
+            model a more controllable and flexible camera control. Extensive
+            experiments demonstrate that our training-free approach can ef-
+            fectively decouple camera-object motion and apply the decoupled
+            camera motion to a wide range of controllable video generation
+            tasks, achieving flexible and diverse camera motion control.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+
+      <!-- Visual Effects. -->
+      <div class="column has-text-centered">
+        <div class="content">
+          <!-- <h2 class="title is-3">Fig2</h2> -->
+          <h3 class="title is-4">
+            Source Video & Swap Attention Map
+          </h3>
+          <div class="item">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/fix_1.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+  </div>
+</section>
+
+<section class="section">
+  <div class="columns is-centered">
+    <h2 class="title is-4">One-Shot Camera Motion Transfer</h2>
+  </div>
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+
+      <!-- Visual Effects. -->
+      <div class="column">
+        <div class="content">
+          <div class="item">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/demo.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+
+      <!-- Matting. -->
+      <!-- <div class="column">
+        <div class="columns is-centered">
+          <div class="column content">
+            <div class="item">
+              <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/fig2_2.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div> -->
+    <!--/ Matting. -->
+</section>
+
+<section class="section">
+  <div class="columns is-centered" style="margin-bottom: 50px;">
+    <h2 class="title is-4">Few-Shot Camera Motion Transfer</h2>
+  </div>
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+
+      <!-- Visual Effects. -->
+      <div class="columns is-centered">
+        <div class="content">
+          <div class="item">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/demo2.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+
+      <!-- Matting. -->
+      <!-- <div class="column">
+        <div class="columns is-centered">
+          <div class="column content">
+            <div class="item">
+              <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/fig2_2.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div> -->
+    <!--/ Matting. -->
+</section>
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+
+      <!-- Visual Effects. -->
+      <div class="column has-text-centered">
+        <div class="content">
+          <!-- <h2 class="title is-3">Fig2</h2> -->
+          <h3 class="title is-4">
+            Camera Motion Combination
+          </h3>
+          <div class="item">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/main_fig1.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+
+      <!-- Visual Effects. -->
+      <div class="column has-text-centered">
+        <div class="content">
+          <!-- <h2 class="title is-3">Fig2</h2> -->
+          <h3 class="title is-4">
+            Professional Camera Motions
+          </h3>
+          <div class="item">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/fix_2.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+
+      <!-- Visual Effects. -->
+      <div class="column has-text-centered">
+        <div class="content">
+          <!-- <h2 class="title is-3">Fig2</h2> -->
+          <h3 class="title is-4">
+            Ablation Study On One-Shot Camera Motion Disentanglement
+          </h3>
+          <div class="item">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/fix_3.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+
+      <!-- Visual Effects. -->
+      <div class="column has-text-centered">
+        <div class="content">
+          <!-- <h2 class="title is-3">Fig2</h2> -->
+          <h3 class="title is-4">
+            Ablation Study On Few-Shot Camera Motion Disentanglement
+          </h3>
+          <div class="item">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/abla2.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+
+      <!-- Visual Effects. -->
+      <div class="column has-text-centered">
+        <div class="content">
+          <!-- <h2 class="title is-3">Fig2</h2> -->
+          <h3 class="title is-4">
+            Ablation on timestep t
+          </h3>
+          <div class="item">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/freecompress-demo4.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+  </div>
+</section>
+
+
+<div>
+  <div class="column has-text-centered">
+    <h2 class="title is-3">Gallery</h2>
+  </div>
+</div>
+
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div class="column has-text-centered">
+        <h2 class="title is-4">Pan Right</h2>
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="item">
+            <img src="./static/my_images/3.gif" alt="GIF 1" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/16.gif" alt="GIF 2" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/557.gif" alt="GIF 3" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/601.gif" alt="GIF 4" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/604.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/699.gif" alt="GIF 6" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/726.gif" alt="GIF 7" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/752.gif" alt="GIF 8" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/805.gif" alt="GIF 9" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/976.gif" alt="GIF 10" autoplay loop playsinline height="100%">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div class="column has-text-centered">
+        <h2 class="title is-4">Zoom In</h2>
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="item">
+            <img src="./static/my_images/5.gif" alt="GIF 1" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/9.gif" alt="GIF 2" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/10.gif" alt="GIF 3" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/20.gif" alt="GIF 4" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/26.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/31.gif" alt="GIF 6" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/40.gif" alt="GIF 7" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/88.gif" alt="GIF 8" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/160.gif" alt="GIF 9" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/251.gif" alt="GIF 10" autoplay loop playsinline height="100%">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div class="column has-text-centered">
+        <h2 class="title is-4">Pan Left</h2>
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="item">
+            <img src="./static/my_images/75.gif" alt="GIF 1" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/507.gif" alt="GIF 2" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/560.gif" alt="GIF 3" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/566.gif" alt="GIF 4" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/721.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/866.gif" alt="GIF 6" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/767.gif" alt="GIF 7" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/772.gif" alt="GIF 8" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/891.gif" alt="GIF 9" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/912.gif" alt="GIF 10" autoplay loop playsinline height="100%">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div class="column has-text-centered">
+        <h2 class="title is-4">Zoom Out</h2>
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="item">
+            <img src="./static/my_images/5_2.gif" alt="GIF 1" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/7.gif" alt="GIF 2" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/8.gif" alt="GIF 3" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/49.gif" alt="GIF 4" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/80.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/264.gif" alt="GIF 6" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/398.gif" alt="GIF 7" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/506.gif" alt="GIF 8" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/552.gif" alt="GIF 9" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/my_images/588.gif" alt="GIF 10" autoplay loop playsinline height="100%">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="item">
+    <div class="column has-text-centered">
+      <!-- <h2 class="title is-3">Dolly Zoom</h2> -->
+      <!-- <h3 class="title is-4">origin image</h3>
+      <img src="./static/DollyZoom/origin.gif" alt="GIF 0"> -->
+    </div>
+  </div>
+  <div class="hero-body">
+    <div class="container">
+      <div class="column has-text-centered">
+        <h2 class="title is-4">Dolly Zoom In</h2>
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="item">
+            <img src="./static/DollyIn3/1_1.gif" alt="GIF 1" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyIn3/1_2.gif" alt="GIF 2" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyIn3/1_3.gif" alt="GIF 3" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyIn3/2_1.gif" alt="GIF 4" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyIn3/2_2.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyIn3/2_3.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyIn3/3_1.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyIn3/3_3.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyIn3/3_2.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="item">
+    <div class="column has-text-centered">
+      <!-- <h2 class="title is-3">Dolly Zoom</h2> -->
+      <!-- <h3 class="title is-4">origin image</h3>
+      <img src="./static/DollyZoom/origin.gif" alt="GIF 0"> -->
+    </div>
+  </div>
+  <div class="hero-body">
+    <div class="container">
+      <div class="column has-text-centered">
+        <h2 class="title is-4">Dolly Zoom Out</h2>
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="item">
+            <img src="./static/DollyOut3/1_1.gif" alt="GIF 1" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyOut3/1_2.gif" alt="GIF 2" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyOut3/1_3.gif" alt="GIF 3" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyOut3/2_1.gif" alt="GIF 4" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyOut3/2_2.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyOut3/2_3.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyOut3/3_1.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyOut3/3_3.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+          <div class="item">
+            <img src="./static/DollyOut3/3_2.gif" alt="GIF 5" autoplay loop playsinline height="100%">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
