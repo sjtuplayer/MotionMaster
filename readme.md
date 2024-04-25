@@ -20,10 +20,12 @@
 If you find this code helpful for your research, please cite:
 
 ```
-@inproceedings{hu2023stroke,
-      title={Stroke-based Neural Painting and Stylization with Dynamically Predicted Painting Region}, 
-      author={Teng Hu and Ran Yi and Haokun Zhu and Liang Liu and Jinlong Peng and Yabiao Wang and Chengjie Wang and Lizhuang Ma},
-      booktitle={Proceedings of the 30th ACM International Conference on Multimedia},
-      year={2023}
-      }
+@misc{hu2024motionmaster,
+      title={MotionMaster: Training-free Camera Motion Transfer For Video Generation}, 
+      author={Teng Hu and Jiangning Zhang and Ran Yi and Yating Wang and Hongrui Huang and Jieyu Weng and Yabiao Wang and Lizhuang Ma},
+      year={2024},
+      eprint={2404.15789},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
 ```
