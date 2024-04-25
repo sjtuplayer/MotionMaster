@@ -1,5 +1,5 @@
 # MotionMaster: Training-free Camera Motion Transfer For Video Generation
-###  [Paper](https://arxiv.org/abs/2309.03504)
+###  [Paper](https://arxiv.org/abs/2404.15789)
 <!-- <br> -->
 [Teng Hu](https://github.com/sjtuplayer), 
 [Jiangning Zhang](https://zhangzjn.github.io/),
