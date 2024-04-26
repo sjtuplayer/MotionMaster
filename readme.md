@@ -11,6 +11,8 @@
  and [Lizhuang Ma](https://dmcv.sjtu.edu.cn/) 
 <!-- <br> -->
 
+![image](imgs/teaser.gif)
+
 ![image](imgs/teaser.png)
 
 ## Coming Soon
