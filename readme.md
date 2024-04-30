@@ -13,7 +13,7 @@
 
 ![image](imgs/teaser.gif)
 
-[![Alt text](imgs/Motionmaster.png)](https://www.youtube.com/watch?v=o3Fk4RgWC4A)
+[//]: # ([![Alt text]&#40;imgs/Motionmaster.png&#41;]&#40;https://www.youtube.com/watch?v=o3Fk4RgWC4A&#41;)
 
 
 ![image](imgs/teaser.png)
