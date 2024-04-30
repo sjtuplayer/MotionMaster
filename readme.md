@@ -13,8 +13,10 @@
 
 ![image](imgs/teaser.gif)
 
-![image](imgs/teaser.png)
+[![Alt text](imgs/Motionmaster.png)](https://www.youtube.com/watch?v=o3Fk4RgWC4A)
 
+
+![image](imgs/teaser.png)
 ## Coming Soon
 
 ## Citation
