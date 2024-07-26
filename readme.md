@@ -18,8 +18,8 @@
 
 ![image](imgs/teaser.png)
 ## Schedule 
-- [ ] **Before 2024.8.15, release the one-shot camera-motion transfer code
-- [ ] **Before 2024.9.15, release the few-shot camera-motion transfer code
+- [ ] **Expected to release the one-shot camera-motion transfer code before 2024.8.15
+- [ ] **Expected to release the few-shot camera-motion transfer code before 2024.9.1
 
 ## Citation
 
