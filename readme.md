@@ -17,7 +17,9 @@
 
 
 ![image](imgs/teaser.png)
-## Coming Soon
+## Schedule 
+- [ ] **Before 2024.8.15, release the one-shot camera-motion transfer code
+- [ ] **Before 2024.9.15, release the few-shot camera-motion transfer code
 
 ## Citation
 
