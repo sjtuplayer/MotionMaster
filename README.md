@@ -17,9 +17,61 @@
 
 
 ![image](imgs/teaser.png)
-## Schedule 
-- [ ] **Expected to release the one-shot camera-motion transfer code before 2024.8.15
-- [ ] **Expected to release the few-shot camera-motion transfer code before 2024.9.1
+## Schedule
+- [ ] **Expected to release the full-version before 2024.10.10
+
+## Prepare
+
+
+### 🛠️ Prepare the environment
+```
+python 3.9
+cuda==11.8
+gcc==7.5.0
+cd AnimateDiff
+
+conda env create -f environment.yaml
+conda activate MotionMaster
+```
+
+
+### 🍺 Checkpoint for AnimateDiff
+
+```
+Download the official checkpoint of AnimateDiff:
+
+mkdir -p models/Motion_Module
+wget -O models/Motion_Module/mm_sd_v15_v2.ckpt
+
+mkdir -p models/DreamBooth_LoRA
+wget -O models/DreamBooth_LoRA/realisticVisionV51_v51VAE.safetensors
+
+mkdir -p models/StableDiffusion
+git clone https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5 models/StableDiffusion
+```
+
+### 🚀 Generating new videos based on the reference motion
+
+
+#### Prepare reference video and prompts
+
+Edit `animatediff\configs\prompts\v2\v2-1-RealisticVision.yaml` to make sure `video_name` is the file path to your reference video.
+
+
+
+Run MotionMaster with:
+```
+python scripts/motionconvert.py --config configs/prompts/v2/v2-1-RealisticVision.yaml
+```
+The generated samples can be found in `samples/` folder.
+
+### 🚀 One-shot camera motion disentanglement
+
+Coming Soon.
+
+### 🚀 Few-shot camera motion disentanglement
+
+Coming Soon.
 
 ## Citation
 
