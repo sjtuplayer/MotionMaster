@@ -1,7 +1,6 @@
 import sys
 import os
-import json
-# 添加项目根目录到 PYTHONPATH
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import argparse
 import datetime
@@ -33,6 +32,8 @@ from PIL import Image
 import numpy as np
 import imageio
 
+import util.resources
+
 @torch.no_grad()
 def main(args):
     *_, func_args = inspect.getargvalues(inspect.currentframe())
@@ -42,8 +43,11 @@ def main(args):
     savedir = f"samples/{Path(args.config).stem}-{time_str}"
     os.makedirs(savedir)
 
+    new_config = OmegaConf.load(args.config)
+    new_config[0]['savedir']=savedir
+    util.resources.set_config(new_config)
 
-    config = OmegaConf.load(args.config)
+    config = new_config
     samples = []
 
     # create validation pipeline
@@ -58,8 +62,6 @@ def main(args):
         data["inversion_step"] = model_config.inversion_step
         data["replace_step"] = model_config.replace_step
 
-        with open('params.json', 'w') as file:
-            json.dump(data, file, indent=4)
 
         model_config.W = model_config.get("W", args.W)
         model_config.H = model_config.get("H", args.H)
@@ -167,7 +169,6 @@ def main(args):
         config[model_idx].random_seed = []
         for prompt_idx, (prompt1, n_prompt, random_seed) in enumerate(zip(prompts1, n_prompts, random_seeds)):
             for prompt2 in prompts2:
-                print(prompt2)
                 # manually set random seed for reproduction
                 if random_seed != -1:
                     torch.manual_seed(random_seed)
@@ -215,7 +216,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pretrained-model-path", type=str, default="models/StableDiffusion", )
+    parser.add_argument("--pretrained-model-path", type=str, default="runwayml/stable-diffusion-v1-5", )
     parser.add_argument("--inference-config", type=str, default="configs/inference/inference-v1.yaml")
     parser.add_argument("--config", type=str, required=True)
 
@@ -225,4 +226,5 @@ if __name__ == "__main__":
 
     parser.add_argument("--without-xformers", action="store_true")
     args = parser.parse_args()
+
     main(args)

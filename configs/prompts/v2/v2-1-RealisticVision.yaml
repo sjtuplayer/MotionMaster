@@ -13,7 +13,6 @@
   steps:          25
   guidance_scale: 7.5
 
-  inversion_steps: 20
 
   prompt:
 
@@ -28,10 +27,11 @@
   inversion_step: 15
   # The number of steps to replace the attention map in the forward process
   replace_step: 15
-
+  use_mask: True
+  mask_save_dir: "__assets__/masks/mask-ZoomIn.pt"
   # file path to reference video
   video_name:
-    - "diffusion_video/2.mp4"
+    - "__assets__/source_video/ZoomIn.gif"
 
   # prompt of reference video
   prompt1:

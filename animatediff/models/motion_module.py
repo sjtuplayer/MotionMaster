@@ -5,7 +5,7 @@ import scipy.sparse as sp
 from scipy.sparse.linalg import splu
 import math
 import cv2 as cv
-import json
+
 import os
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
@@ -278,14 +278,25 @@ class VersatileAttention(CrossAttention):
             dropout=0.,
             max_len=temporal_position_encoding_max_len
         ) if (temporal_position_encoding and attention_mode == "Temporal") else None
-        if not os.path.exists('id.pt'):
-            id = torch.tensor(0)
-            torch.save(id + 1, 'id.pt')
+        # if not os.path.exists('id.pt'):
+        #     id = torch.tensor(0)
+        #     torch.save(id + 1, 'id.pt')
+        # else:
+        #     id = torch.load('id.pt')
+        #     torch.save(id + 1, 'id.pt')
+
+        import util.resources
+        new_config = util.resources.get_config()
+
+        if 'id' in new_config[0]:
+            id = new_config[0]['id']
+            new_config[0]["id"] = id + 1
         else:
-            id = torch.load('id.pt')
-            torch.save(id + 1, 'id.pt')
+            id = 0
+            new_config[0]["id"] = id + 1
+        util.resources.set_config(new_config)
+
         self.id = id
-        # print('initialize',id)
         self.ddim_step = 25
         self.last_hidden_states = [0 for i in range(self.ddim_step)]
         self.last_attn_map = [0 for i in range(self.ddim_step)]
@@ -316,12 +327,19 @@ class VersatileAttention(CrossAttention):
         attention_probs = attention_scores
         attention_probs = attention_probs.to(value.dtype)  # 16*16
 
-        with open('params.json', 'r') as file:
-            data = json.load(file)
+        # with open('params.json', 'r') as file:
+        #     data = json.load(file)
 
-        inversion_step = data['inversion_step']
-        replace_step = data['replace_step']
-        savedir = data.get("savedir")
+        # inversion_step = data['inversion_step']
+        # replace_step = data['replace_step']
+        # savedir = data.get("savedir")
+        import util.resources
+
+        new_config = util.resources.get_config()
+        for model_idx, model_config in enumerate(new_config):
+            savedir = model_config.savedir
+            inversion_step = model_config.inversion_step
+            replace_step = model_config.replace_step
 
         if self.current_step == inversion_step:
 
@@ -330,10 +348,14 @@ class VersatileAttention(CrossAttention):
             os.makedirs(dir_path, exist_ok=True)
             torch.save(attention_scores, file_path)
 
-
         if self.current_step>=inversion_step*2 and (self.current_step-inversion_step*2)%self.ddim_step<replace_step:
-            savedir = data.get("savedir")
-            path = os.path.join(savedir, 'tmp-save', f'{inversion_step}-{self.id % 42}.pt')
+            import util.resources
+            new_config = util.resources.get_config()
+            use_mask = new_config[0].use_mask
+            if use_mask:
+                path = os.path.join(savedir, 'tmp-saveblend', f'{inversion_step}-{self.id % 42}.pt')
+            else:
+                path = os.path.join(savedir, 'tmp-save', f'{inversion_step}-{self.id % 42}.pt')
             attention_probs = torch.load(path)
 
         attention_probs = attention_probs.softmax(dim=-1)  # 16*16
@@ -405,4 +427,3 @@ class VersatileAttention(CrossAttention):
             hidden_states = rearrange(hidden_states, "(b d) f c -> (b f) d c", d=d)
         self.current_step += 1
         return hidden_states
-

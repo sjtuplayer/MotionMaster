@@ -2,7 +2,6 @@
 
 import os
 import torch
-import json
 
 import numpy as np
 import scipy.sparse as sp
@@ -33,7 +32,75 @@ from diffusers.schedulers import (
     LMSDiscreteScheduler,
     PNDMScheduler,
 )
+import os
 
+import numpy as np
+import scipy.sparse as sp
+from scipy.sparse.linalg import splu
+import math
+import cv2 as cv
+class PoissonEdit:
+    def __init__(self):
+        pass
+
+    def poisson_mat_sparse(self, src, tgt, mask):
+        src = src.astype(np.float32)
+        tgt = tgt.astype(np.float32)
+        height, width = tgt.shape[:2]
+
+
+        uv_to_ind = -1 * np.ones((height, width), dtype=np.int32)
+        v, u = np.where(mask)
+        uv_to_ind[v, u] = np.arange(len(u), dtype=np.int32)
+
+
+        data, row, col = [], [], []
+
+        b = np.zeros((len(u), src.shape[2]), dtype=np.float32)
+
+        for idx in range(len(u)):
+            cnt = 0
+            u_center, v_center = u[idx], v[idx]
+
+            neighbors = [
+                (u_center, v_center - 1),
+                (u_center, v_center + 1),
+                (u_center - 1, v_center),
+                (u_center + 1, v_center)
+            ]
+
+            for (u_nbr, v_nbr) in neighbors:
+                if 0 <= u_nbr < width and 0 <= v_nbr < height:
+                    b[idx] -= src[v_nbr, u_nbr]
+                    cnt += 1
+
+                    if mask[v_nbr, u_nbr] > 0:
+                        data.append(-1)
+                        row.append(idx)
+                        col.append(uv_to_ind[v_nbr, u_nbr])
+                    else:
+                        b[idx] += tgt[v_nbr, u_nbr]
+
+            data.append(cnt)
+            row.append(idx)
+            col.append(idx)
+
+            b[idx] += cnt * src[v_center, u_center]
+
+        A = sp.coo_matrix((data, (row, col)), shape=(len(u), len(u)))
+        A.sum_duplicates()
+        return A, b
+
+    def blend_sparse(self, src, tgt, mask):
+        A, b = self.poisson_mat_sparse(src, tgt, mask)
+
+        lu_solver = splu(A)
+        x = lu_solver.solve(b)
+
+        res = tgt.copy()
+        res[mask > 0] = x
+
+        return res
 
 
 def zero_module(module):
@@ -387,17 +454,15 @@ class motionconvert_Pipeline(DiffusionPipeline):
 
         **kwargs,
     ):
-        with open('params.json', 'r') as file:
-            data = json.load(file)
+        import util.resources
 
-        inversion_step = data['inversion_step']
-        replace_step = data['replace_step']
-        savedir = data.get("savedir")
-        mask_save_path = data.get("mask_save_path")
+        new_config = util.resources.get_config()
+        for model_idx, model_config in enumerate(new_config):
+            savedir = model_config.savedir
+            inversion_step = model_config.inversion_step
+            replace_step = model_config.replace_step
         ##################################################################################
         ##############################video1 inverse process##############################
-        with open('params.json', 'r') as file:
-            data = json.load(file)
         dir = os.path.join(savedir, 'tmp-save')
         if not os.path.exists(dir):
             latents = self.encode_video(video)
@@ -485,14 +550,13 @@ class motionconvert_Pipeline(DiffusionPipeline):
             # Prepare extra step kwargs.
             extra_step_kwargs = self.prepare_extra_step_kwargs(generator, eta)
 
+            import util.resources
 
-            with open('params.json', 'r') as file:
-                data = json.load(file)
-
-            inversion_step = data['inversion_step']
-            replace_step = data['replace_step']
-            savedir = data.get("savedir")
-            mask_save_path = data.get("mask_save_path")
+            new_config = util.resources.get_config()
+            for model_idx, model_config in enumerate(new_config):
+                savedir = model_config.savedir
+                inversion_step = model_config.inversion_step
+                replace_step = model_config.replace_step
 
             timesteps = timesteps[-inversion_step:]
 
@@ -625,12 +689,60 @@ class motionconvert_Pipeline(DiffusionPipeline):
         import scipy.sparse as sp
         from scipy.sparse.linalg import splu
         ###poission process
-        import torch
-        from einops import rearrange
-        from torchvision import transforms
-        #
+        import util.resources
+        new_config = util.resources.get_config()
+        use_mask = new_config[0].use_mask
+        if use_mask:
+            import torch
+            from einops import rearrange, repeat
+            from torchvision import transforms
+            import torch.nn.functional as F
+
+            poisson = PoissonEdit()
+
+            import util.resources
+            new_config = util.resources.get_config()
+            for model_idx, model_config in enumerate(new_config):
+                savedir = model_config.savedir
+                mask_save_dir = model_config.mask_save_dir
+
+            mask0 = torch.load(mask_save_dir)
+
+            dir = os.path.join(savedir, 'tmp-save')
+            file_names = os.listdir(dir)
+
+            for file_name in file_names:
+                if not file_name.endswith('.pt'):
+                    continue
+
+                data0 = torch.load(os.path.join(dir, file_name))
+
+                data = rearrange(data0, "(b h) f g -> b h f g", h=8)
+                data = rearrange(data, "(b d) h f g -> b d h f g", b=2)
+
+                w = int(math.sqrt(data.size(1)))
+                resize = transforms.Resize([w, w])
+                mask = resize(mask0.int()).squeeze().cpu().numpy()
+
+                data = (data.reshape(2, w, w, 8, 16, 16)
+                        .permute(1, 2, 0, 3, 4, 5)
+                        .reshape(w, w, -1)
+                        .cpu().numpy())
+
+                gradient = np.zeros(data.shape)
+
+                blended = poisson.blend_sparse(gradient, data, mask)
+
+                blended = torch.from_numpy(blended)
+                blended = (blended.reshape(w, w, 2, 8, 16, 16)
+                           .permute(2, 0, 1, 3, 4, 5)
+                           .reshape(2, w * w, 8, 16, 16))
+                blended = rearrange(blended, "b d h f g -> (b d) h f g")
+                blended = rearrange(blended, "b h f g -> (b h) f g")
 
 
+                os.makedirs(f'{dir}blend', exist_ok=True)
+                torch.save(blended, os.path.join(f'{dir}blend', file_name))
 
         latents = None
         # Default height and width to unet
@@ -687,6 +799,7 @@ class motionconvert_Pipeline(DiffusionPipeline):
 
         latent_list = []
         # Denoising loop
+        import torch
         num_warmup_steps = len(timesteps) - num_inference_steps * self.scheduler.order
         with self.progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
