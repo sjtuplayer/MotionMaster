@@ -27,11 +27,10 @@
   inversion_step: 15
   # The number of steps to replace the attention map in the forward process
   replace_step: 15
-  use_mask: True
-  mask_save_dir: "masks/mask-lora-ZoomIn.pt"
+  use_mask: False
   # file path to reference video
   video_name:
-    - "source_video/0-v2_lora_ZoomIn.gif"
+    - "__assets__/source_video/variable_speed-zoom.gif"
 
   # prompt of reference video
   prompt1:

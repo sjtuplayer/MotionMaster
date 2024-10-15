@@ -35,7 +35,7 @@
 
   # prompt of reference video
   prompt1:
-    - "old man, white hair, white beard, white hat, dark skin tone, sparsely treed yellow mountain, white cloth floating around, zooming in."
+    - "close up photo of a rabbit, forest, haze, halation, bloom, dramatic atmosphere, centred, rule of thirds, 200mm 1.4f macro shot"
 
   # prompts of videos to generate
   prompt2:
